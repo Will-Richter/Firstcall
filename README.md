@@ -44,6 +44,8 @@ Any host that runs a Docker container (or Node 22) with a persistent disk works.
 
 The host must answer `/health` with `ok` once it is up.
 
+On Railway, that is: add a service to your project from this GitHub repo, attach a volume to the service with the mount path `/data`, add the variables above, and generate a domain under the service's networking settings. Use that domain as `PUBLIC_URL`. Railway rebuilds the app whenever this repository changes.
+
 ## Setting up, once it is online
 
 The app lists whatever is left to do. There are three steps.
