@@ -58,11 +58,15 @@ function start(options) {
   const store = db.open(dataDir);
   const masterKey = secure.loadMasterKey(dataDir);
   const identity = push.loadIdentity(store, secure, masterKey);
+  /* Only a complete web address counts; anything else (a blank or half-filled setting) is ignored and the address
+     people actually open the app at is used instead. */
+  let publicUrl = '';
+  try { const u = new URL(process.env.PUBLIC_URL || ''); if (/^https?:$/.test(u.protocol) && u.hostname) publicUrl = u.origin; } catch (e) { /* not set */ }
   const ctx = {
     store, secure, masterKey, identity,
-    publicUrl: (process.env.PUBLIC_URL || '').replace(/\/+$/, ''),
+    publicUrl,
     /* Apple and Google ask who is sending a notification: a contact email if one is set, otherwise the app's own address. */
-    pushSubject: process.env.CONTACT_EMAIL ? 'mailto:' + process.env.CONTACT_EMAIL : ((process.env.PUBLIC_URL || '').replace(/\/+$/, '') || 'mailto:owner@firstcall.invalid'),
+    pushSubject: process.env.CONTACT_EMAIL ? 'mailto:' + process.env.CONTACT_EMAIL : (publicUrl || 'mailto:owner@firstcall.invalid'),
   };
   const router = createRouter();
   registerApi(router, ctx);
