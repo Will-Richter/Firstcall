@@ -91,6 +91,8 @@ This repository holds the app only. It contains no leads, customer details, keys
 
 ## Status
 
-Tested here: the server test suite (which also runs the website emails script against stand-ins for Gmail and Google's script services), the notification encryption against the worked example in RFC 8291, and a full run in a phone-sized browser (create account, receive form emails, work a lead, send it to a stand-in ServiceM8, go offline and back). The code has had one independent review, and what it found is fixed.
+Tested here: the server test suite (which also runs the website emails script against stand-ins for Gmail and Google's script services), the notification encryption against the worked example in RFC 8291, and a full run in a phone-sized browser (create account, receive form emails, work a lead, send it to a stand-in ServiceM8, go offline and back). The code has had one independent review; the serious findings are fixed and the remaining one is listed below.
+
+Known gap: if ServiceM8 fails after creating a new client but before saving that client's contact, Firstcall says so and names what was created. Trying again then uses the client that now exists without adding the contact, so add the phone and email to that client in ServiceM8 by hand.
 
 Not yet proven against the real thing: a live ServiceM8 account, a notification arriving on a real phone, the website emails script running in a real Google account, and the container image build.
