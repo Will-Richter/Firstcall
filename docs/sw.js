@@ -1,6 +1,6 @@
 /* Keeps Firstcall opening from the Home Screen with or without reception.
    Leads and changes themselves are handled by the page (link.js); this only looks after the app's own files. */
-const VERSION = '5bbca2b6f8af';
+const VERSION = '980160194ee1';
 const CACHE = 'firstcall-pages-' + VERSION;
 const SHELL = ['./', 'link.js', 'setup.js', 'setup.css', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 const BASE = new URL('./', self.location).pathname;

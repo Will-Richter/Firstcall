@@ -79,7 +79,10 @@
     var step = l ? (H.useLink(l), api('me')) : H.claim(url).then(function () { return api('me'); });
     step.then(function (me) { gateNote = null; enter(me, first); }, function (e) {
       if (l) H.forget();
-      showGate(e && e.code === 'bad_key' ? 'That connection link is no longer valid. Send yourself a new one from a device that is connected.' : why(e));
+      /* A browser reports a wrong address, a script that is not open to "Anyone" and having no signal in the same way. */
+      showGate(e && e.code === 'bad_key' ? 'That connection link is no longer valid. Send yourself a new one from a device that is connected.'
+        : e && e.network && first ? 'Firstcall could not reach a script at that address. Check you copied the whole Web app URL, and that "Who has access" was set to Anyone when you deployed it. If you have no signal, try again when you do.'
+          : why(e));
     });
   }
 
