@@ -1,0 +1,14 @@
+{
+  "name": "firstcall",
+  "version": "1.0.0",
+  "description": "Website leads in one place, ready to call, track and send to ServiceM8",
+  "private": true,
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "test": "node --disable-warning=ExperimentalWarning test.js"
+  }
+}

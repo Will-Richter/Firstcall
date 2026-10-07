@@ -363,7 +363,7 @@ function parseSnippet(snip){
 function classify(fields){
   var d={name:"",email:"",phone:"",address:"",panels:"",storeys:"",services:"",source:"",message:"",extra:[]};
   fields.forEach(function(f){var l=f.label.toLowerCase(),v=f.value;
-    if(/e-?mail/.test(l)){var e=/[^\s<>()\[\]]+@[^\s<>()\[\]]+\.[a-z]{2,}/i.exec(v);d.email=e?e[0]:""}
+    if(/e-?mail/.test(l)){var e=/[A-Za-z0-9._+-]{1,64}@[A-Za-z0-9.-]{1,190}\.[A-Za-z]{2,24}/.exec(String(v).slice(0,400));d.email=e?e[0]:""}
     else if(/phone|mobile/.test(l))d.phone=clean(v);
     else if(/hear about/.test(l))d.source=clean(v);
     else if(/stor(ie|ey|y)/.test(l))d.storeys=clean(v);
@@ -499,7 +499,7 @@ function renderNotices(c){
   var h="";
   if(S.ready&&!S.mcp&&!S.db)h+='<div class="notice warn">This view can\'t reach Gmail or save changes. Open the page inside Claude to load your leads.</div>';
   else if(S.ready&&!S.db)h+='<div class="notice warn">Changes can\'t be saved in this view, so statuses and notes will reset when you leave.</div>';
-  if(S.sync.error)h+='<div class="notice err"><span>'+esc(mcpMsg(S.sync.error,GM))+'</span><div class="acts"><button class="btn sm" data-act="sync">Try again</button></div></div>';
+  if(S.sync.error&&!(window.__firstcallHost&&window.__firstcallHost.offline))h+='<div class="notice err"><span>'+esc(mcpMsg(S.sync.error,window.__firstcallHost?"Firstcall":GM))+'</span><div class="acts"><button class="btn sm" data-act="sync">Try again</button></div></div>';
   var old=LEADS.filter(function(L){return L.state.status==="new"&&Date.now()-L.at>14*864e5});
   if(old.length>=5&&!S.hideBacklog)h+='<div class="notice"><span><b>'+old.length+' leads are older than two weeks</b> and still marked new. If you\'ve already dealt with them, archive them so only fresh leads count.</span><div class="acts"><button class="btn sm primary" data-act="backlog">Archive those '+old.length+'</button><button class="btn sm" data-act="backlog-keep">Keep them</button></div></div>';
   $("notices").innerHTML=h;
@@ -534,8 +534,8 @@ function renderList(){
   var el=$("list");
   if(!S.ready||(S.db&&!S.subsLoaded)){el.innerHTML='<div class="loader">'+ICON.ring+'<span>Opening your leads</span></div>';return}
   if(!LEADS.length){
-    if(S.sync.running){el.innerHTML='<div class="loader">'+ICON.ring+'<span>Reading your website enquiries from Gmail'+(S.sync.total?" · "+S.sync.done+" of "+S.sync.total:"")+'</span></div>';return}
-    el.innerHTML='<div class="empty"><h2>No leads loaded yet</h2><p>Firstcall reads the form submission emails your website sends to Gmail and lines them up here, newest first, ready to call.</p>'+(S.mcp?'<button class="btn accent" data-act="sync">Sync from Gmail</button>':'')+'</div>';return}
+    if(S.sync.running){el.innerHTML='<div class="loader">'+ICON.ring+'<span>'+(window.__firstcallHost?'Checking for new enquiries':'Reading your website enquiries from Gmail')+''+(S.sync.total?" · "+S.sync.done+" of "+S.sync.total:"")+'</span></div>';return}
+    el.innerHTML=window.__firstcallHost?'<div class="empty"><h2>No leads yet</h2><p>Enquiries from your website forms land here by themselves, newest first, ready to call.</p><button class="btn accent" data-act="sync">Check now</button></div>':'<div class="empty"><h2>No leads loaded yet</h2><p>Firstcall reads the form submission emails your website sends to Gmail and lines them up here, newest first, ready to call.</p>'+(S.mcp?'<button class="btn accent" data-act="sync">Sync from Gmail</button>':'')+'</div>';return}
   var rows=LEADS.filter(function(L){return inFilter(L,S.filter)&&matchQ(L)});
   if(!rows.length){el.innerHTML='<div class="empty"><h2>'+(S.q?"No leads match that search":"Nothing in this list")+'</h2><p>'+(S.q?"Try a name, suburb, phone number or email.":"Leads move here as you update them.")+'</p>'+(S.filter!=="all"?'<button class="btn" data-act="filter" data-f="all">Show all leads</button>':'')+'</div>';return}
   var items=[],last="",n=0;
@@ -557,7 +557,7 @@ function contactRow(label,val,copyVal,href,icon,aria){
 function sm8HTML(L){
   var st=L.state,k=L.key,h='<section class="sec" id="sm8sec"><h3>ServiceM8</h3>';
   if(S.add&&S.add.key===k){var a=S.add,T=S.sm8.templates;
-    h+='<p class="hint">Creates a job for this client from your job template. ServiceM8 adds them as a new client if they aren\'t one already. Phone and email are carried in the job description.</p>'+
+    h+='<p class="hint">'+(window.__firstcallHost?'Creates a job for this client in ServiceM8. If they aren\'t a client yet, they are added first with their phone and email.':'Creates a job for this client from your job template. ServiceM8 adds them as a new client if they aren\'t one already. Phone and email are carried in the job description.')+'</p>'+
       '<label class="field">Client name<input id="sm8name" data-add="name" value="'+esc(a.name)+'" autocomplete="off"></label>'+
       '<label class="field">Job address<input id="sm8addr" data-add="address" value="'+esc(a.address)+'" autocomplete="off"></label>'+
       '<label class="field">Job type<select id="sm8tpl" data-add="tpl"'+(T?"":" disabled")+'>'+(T?T.map(function(t){return'<option value="'+esc(t.uuid)+'"'+(t.uuid===a.tpl?" selected":"")+'>'+esc(t.name)+'</option>'}).join(""):'<option>'+(S.sm8.tplError?"Couldn't load job types":"Loading job types…")+'</option>')+'</select></label>'+
@@ -592,7 +592,7 @@ function renderSheet(still){
   h+='<div class="quick">'+
     '<a class="qa call" '+(tel?'href="tel:'+esc(tel)+'" data-act="call" data-key="'+esc(L.key)+'"':'aria-disabled="true"')+'>'+ICON.phone+'Call now</a>'+
     '<a class="qa" '+(tel?'href="sms:'+esc(tel)+'"':'aria-disabled="true"')+'>'+ICON.sms+'Text</a>'+
-    '<a class="qa" '+(L.email?'href="mailto:'+esc(L.email)+'?subject='+encodeURIComponent("Your solar cleaning enquiry")+'"':'aria-disabled="true"')+'>'+ICON.mail+'Email</a>'+
+    '<a class="qa" '+(L.email?'href="mailto:'+esc(encodeURIComponent(L.email).replace(/%40/g,"@"))+'?subject='+encodeURIComponent("Your solar cleaning enquiry")+'"':'aria-disabled="true"')+'>'+ICON.mail+'Email</a>'+
     '<a class="qa" '+(maps?'href="'+esc(maps)+'" target="_blank" rel="noopener"':'aria-disabled="true"')+'>'+ICON.map+'Map</a></div>';
   if(S.afterCall===L.key)h+='<section class="sec aftercall pop"><h3>How did the call go?</h3><div class="outc">'+
     '<button class="btn" data-act="outcome" data-o="noanswer">No answer</button><button class="btn" data-act="outcome" data-o="spoke">Spoke, follow up</button>'+
