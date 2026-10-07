@@ -38,7 +38,7 @@ Any host that runs a Docker container (or Node 22) with a persistent disk works.
 
 1. Create a web service from this repository. The `Dockerfile` is all it needs.
 2. Attach a persistent disk and mount it at `/data`. Without one, leads and log-ins are lost on every restart.
-3. Set `PUBLIC_URL` to the https address of the service, `CONTACT_EMAIL` to your email, and `TRUST_PROXY=1` (hosts put their own https proxy in front). The rest of `.env.example` is optional.
+3. Set `PUBLIC_URL` to the https address of the service and `TRUST_PROXY=1` (hosts put their own https proxy in front). The rest of `.env.example` is optional.
 4. Open the address and create your account straight away: the first account created owns the app. Set `OWNER_EMAIL` beforehand if you want only your email to be able to do that.
 5. Follow the set-up steps the app shows.
 
@@ -65,7 +65,7 @@ The app lists whatever is left to do. There are three steps.
 | `PORT` | Port to listen on. Default `8080`. |
 | `TRUST_PROXY` | `1` when the host has its own https proxy in front, so the limit on wrong passwords sees each visitor's real address. |
 | `OWNER_EMAIL` | Optional. Only this email can create the first account. |
-| `CONTACT_EMAIL` | Contact address sent to Apple and Google with each notification. |
+| `CONTACT_EMAIL` | Optional. Contact address sent to Apple and Google with each notification. Without it, `PUBLIC_URL` is sent instead. |
 | `SECRET_KEY` | Optional. Text used to lock stored credentials. If left out, a key is created on the data disk. |
 | `SIGNUPS` | Optional. `on` lets more than one person create an account. Each account has its own leads. |
 

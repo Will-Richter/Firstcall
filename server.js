@@ -61,7 +61,8 @@ function start(options) {
   const ctx = {
     store, secure, masterKey, identity,
     publicUrl: (process.env.PUBLIC_URL || '').replace(/\/+$/, ''),
-    pushSubject: process.env.CONTACT_EMAIL ? 'mailto:' + process.env.CONTACT_EMAIL : 'mailto:owner@firstcall.invalid',
+    /* Apple and Google ask who is sending a notification: a contact email if one is set, otherwise the app's own address. */
+    pushSubject: process.env.CONTACT_EMAIL ? 'mailto:' + process.env.CONTACT_EMAIL : ((process.env.PUBLIC_URL || '').replace(/\/+$/, '') || 'mailto:owner@firstcall.invalid'),
   };
   const router = createRouter();
   registerApi(router, ctx);
