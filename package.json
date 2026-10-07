@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server.js",
-    "test": "node --disable-warning=ExperimentalWarning test.js"
+    "test": "node --disable-warning=ExperimentalWarning test.js && node test-pages.js",
+    "build": "node build-pages.js"
   }
 }

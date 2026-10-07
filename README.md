@@ -10,7 +10,41 @@ Firstcall takes the form submission emails a Squarespace site sends, turns each 
 - get a phone notification within a minute or two of a new enquiry
 - keep working with poor reception; changes are sent when you are back in range
 
-It is one small server and one web page. Add the page to your phone's Home Screen and it opens full screen like any other app.
+There are two ways to run it. Both use the same screens.
+
+| | GitHub Pages copy | Own server |
+| --- | --- | --- |
+| Where it lives | This repository's `docs/` folder, served by GitHub Pages, plus a script in your own Google account | A small server you host (see below) |
+| Cost | Free | Whatever the host charges |
+| New enquiries | Appear when you open the app or tap Sync | Arrive by themselves within a minute or two |
+| Phone notifications | No | Yes |
+| ServiceM8, statuses, notes, offline use | Yes | Yes |
+
+Add either one to your phone's Home Screen and it opens full screen like any other app.
+
+## The GitHub Pages copy
+
+Open the site (`https://<your-user>.github.io/Firstcall/`) on a computer and follow the four steps it shows. In short:
+
+1. Copy the script the page gives you into a new project at [script.google.com](https://script.google.com), signed in as the Gmail account your website forms go to.
+2. Deploy it as a Web app, with "Execute as" set to Me and "Who has access" set to Anyone.
+3. Paste the Web app URL into Firstcall. The first page to do this is given the script's key; after that the script only answers requests that carry it.
+4. Use "Email it to me" to send the connection link to your phone, open it there, and add Firstcall to the Home Screen.
+
+What the script does, all inside your own Google account:
+
+- reads emails from `form-submission@squarespace.info` and nothing else, the last 12 months the first time and only new ones after that
+- keeps up to 500 enquiries, plus each lead's status and notes, in the script's own storage
+- holds your ServiceM8 API key and makes the ServiceM8 requests, so the key is never on the phone
+- emails the connection link to you, and only you, when you ask for it
+
+To cut off every connected device, open the script and run `disconnectEverything`. The connection link is the key to your leads, so treat it like a password.
+
+`docs/index.html` and `docs/script.txt` are built from `index.html`, `mail.js` and `google-script.src.js` with `npm run build`. `npm test` runs the script against stand-ins for Gmail, Google's storage and ServiceM8 (`test-pages.js`).
+
+## The server version
+
+The rest of this page is about the server version: one small server and one web page.
 
 ## What it runs on
 
@@ -93,8 +127,10 @@ This repository holds the app only. It contains no leads, customer details, keys
 
 ## Status
 
-Tested here: the server test suite (which also runs the website emails script against stand-ins for Gmail and Google's script services), the notification encryption against the worked example in RFC 8291, and a full run in a phone-sized browser (create account, receive form emails, work a lead, send it to a stand-in ServiceM8, go offline and back). The code has had one independent review; the serious findings are fixed and the remaining one is listed below.
+Tested here, server version: the server test suite (which also runs the website emails script against stand-ins for Gmail and Google's script services), the notification encryption against the worked example in RFC 8291, and a full run in a phone-sized browser. The code has had one independent review; the serious findings are fixed and the remaining one is listed below.
 
-Known gap: if ServiceM8 fails after creating a new client but before saving that client's contact, Firstcall says so and names what was created. Trying again then uses the client that now exists without adding the contact, so add the phone and email to that client in ServiceM8 by hand.
+Tested here, GitHub Pages copy: the Google script against stand-ins that enforce Google's storage limits, and a full run in desktop and phone-sized browsers (set-up, emailing the link, opening it on a phone, ServiceM8, offline changes, disconnecting).
 
-Not yet proven against the real thing: a live ServiceM8 account, a notification arriving on a real phone, the website emails script running in a real Google account, and the container image build.
+Known gap, both versions: if ServiceM8 fails after creating a new client but before saving that client's contact, Firstcall says so and names what was created. Trying again then uses the client that now exists without adding the contact, so add the phone and email to that client in ServiceM8 by hand.
+
+Not yet proven against the real thing: a live ServiceM8 account, the Google script running in a real Google account (including a browser being allowed to call it from GitHub Pages), an iPhone carrying the connection across when the app is added to the Home Screen, and for the server version a notification arriving on a real phone.
